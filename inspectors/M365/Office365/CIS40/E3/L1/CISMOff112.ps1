@@ -1,8 +1,8 @@
 # Date: 25-1-2023
 # Version: 1.0
-# Benchmark: CIS Microsoft 365 v3.0.0
+# Benchmark: CIS Microsoft 365 v4.0.0
 # Product Family: Microsoft 365
-# Purpose: Ensure that between two and four global admins are designated
+# Purpose: Ensure two emergency access accounts have been defined
 # Author: Leonardo van de Weteringh
 
 # New Error Handler Will be Called here
@@ -11,40 +11,43 @@ Import-Module PoShLog
 #Call the OutPath Variable here
 $path = @($OutPath)
 
-function Build-CISMOff113($findings)
+function Build-CISMOff112($findings)
 {
 	#Actual Inspector Object that will be returned. All object values are required to be filled in.
 	$inspectorobject = New-Object PSObject -Property @{
-		ID			     = "CISMOff113"
-		FindingName	     = "CIS MOff 1.1.3 - There are $($findings) global admins designated"
+		ID			     = "CISMOff112"
+		FindingName	     = "CIS MOff 1.1.2 - Less than 2 emergency access accounts have been defined"
 		ProductFamily    = "Microsoft Office 365"
 		RiskScore	     = "12"
-		Description	     = "If there is only one global tenant administrator, he or she can perform malicious activity without the possibility of being discovered by another admin. If there are numerous global tenant administrators, the more likely it is that one of their accounts will be successfully breached by an external attacker."
-		Remediation	     = "Create an extra Global Admin Account if you only have one or remove Global Admin permissions from accounts if you have more than four."
+		Description	     = "In various situations, an organization may require the use of a break glass account to gain emergency access. In the event of losing access to administrative functions, an organization may experience a significant loss in its ability to provide support, lose insight into its security posture, and potentially suffer financial losses."
+		Remediation	     = "Create an extra Global Admin Account if you only have one. "
 		PowerShellScript = 'https://admin.microsoft.com/'
 		DefaultValue	 = "1"
-		ExpectedValue    = "Between 2 and 4"
+		ExpectedValue    = "2"
 		ReturnedValue    = $findings
 		Impact		     = "4"
 		Likelihood	     = "3"
 		RiskRating	     = "High"
 		Priority		 = "High"
-		References	     = @(@{ 'Name' = 'Manage emergency access accounts in Microsoft Entra ID'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-emergency-access" },
+		References	     = @(@{ 'Name' = 'Stage 1: Critical items to do right now'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-planning#stage-1-critical-items-to-do-right-now" },
+			@{ 'Name' = 'Manage emergency access accounts in Microsoft Entra ID'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-emergency-access" },
+			@{ 'Name' = 'Restricted management administrative units in Microsoft Entra ID (Preview)'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/admin-units-restricted-management" },
 			@{ 'Name' = 'Securing privileged access for hybrid and cloud deployments in Microsoft Entra ID'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-planning#stage-1-critical-items-to-do-right-now" })
 	}
 	return $inspectorobject
 }
 
-function Audit-CISMOff113
+function Audit-CISMOff112
 {
 	Try
 	{
+		
 		$global_admins = (Get-MgDirectoryRoleMember -DirectoryRoleId (Get-MgDirectoryRole -Filter "DisplayName eq 'Global Administrator'").id | ForEach-Object { Get-MgDirectoryObjectById -Ids $_.id }).AdditionalProperties.userPrincipalName
 		$num_global_admins = ($global_admins | Measure-Object).Count
 		
-		If ($num_global_admins -lt 2 -or $num_global_admins -igt 4)
+		If ($num_global_admins -ilt 2)
 		{
-			$endobject = Build-CISMOff113($num_global_admins)
+			$endobject = Build-CISMOff112($num_global_admins)
 			Return $endobject
 		}
 		
@@ -59,6 +62,4 @@ function Audit-CISMOff113
 	
 }
 
-return Audit-CISMOff113
-
-
+return Audit-CISMOff112

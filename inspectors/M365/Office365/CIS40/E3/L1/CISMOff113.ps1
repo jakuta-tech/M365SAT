@@ -1,6 +1,6 @@
 # Date: 25-1-2023
 # Version: 1.0
-# Benchmark: CIS Microsoft 365 v3.0.0
+# Benchmark: CIS Microsoft 365 v4.0.0
 # Product Family: Microsoft 365
 # Purpose: Ensure that between two and four global admins are designated
 # Author: Leonardo van de Weteringh

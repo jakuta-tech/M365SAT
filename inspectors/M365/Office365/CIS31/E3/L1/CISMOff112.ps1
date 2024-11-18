@@ -29,7 +29,9 @@ function Build-CISMOff112($findings)
 		Likelihood	     = "3"
 		RiskRating	     = "High"
 		Priority		 = "High"
-		References	     = @(@{ 'Name' = 'Manage emergency access accounts in Microsoft Entra ID'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-emergency-access" },
+		References	     = @(@{ 'Name' = 'Stage 1: Critical items to do right now'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-planning#stage-1-critical-items-to-do-right-now" },
+			@{ 'Name' = 'Manage emergency access accounts in Microsoft Entra ID'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-emergency-access" },
+			@{ 'Name' = 'Restricted management administrative units in Microsoft Entra ID (Preview)'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/admin-units-restricted-management" },
 			@{ 'Name' = 'Securing privileged access for hybrid and cloud deployments in Microsoft Entra ID'; 'URL' = "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-planning#stage-1-critical-items-to-do-right-now" })
 	}
 	return $inspectorobject
@@ -43,9 +45,8 @@ function Audit-CISMOff112
 		$global_admins = (Get-MgDirectoryRoleMember -DirectoryRoleId (Get-MgDirectoryRole -Filter "DisplayName eq 'Global Administrator'").id | ForEach-Object { Get-MgDirectoryObjectById -Ids $_.id }).AdditionalProperties.userPrincipalName
 		$num_global_admins = ($global_admins | Measure-Object).Count
 		
-		If ($num_global_admins -ne 2)
+		If ($num_global_admins -ilt 2)
 		{
-			$global_admins | Format-Table -AutoSize | Out-File "$path\CISMOff112-EmergencyAccounts.txt"
 			$endobject = Build-CISMOff112($num_global_admins)
 			Return $endobject
 		}

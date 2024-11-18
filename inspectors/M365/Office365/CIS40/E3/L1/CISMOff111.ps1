@@ -1,6 +1,6 @@
 # Date: 25-1-2023
 # Version: 1.0
-# Benchmark: CIS Microsoft 365 v3.0.0
+# Benchmark: CIS Microsoft 365 v4.0.0
 # Product Family: Microsoft 365
 # Purpose: Ensure Administrative accounts are separate and cloud-only
 # Author: Leonardo van de Weteringh
