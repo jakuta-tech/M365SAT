@@ -580,7 +580,7 @@ function Get-M365SATHTMLReport
                 <div class='col-sm-8'>
                     <h6>Configuration Health Index</h6>                  
                     <p>The configuration health index is a weighted value representing your configuration. Not all configuration is 
-                    considered the same. Some configuration is weighted higher than others. <a href='https://github.com/karmakstylez/M365SAT' target='_blank'>See More... </a></p>
+                    considered the same. Some configuration is weighted higher than others. <a href='https://github.com/aster-lvdw/M365SAT' target='_blank'>See More... </a></p>
 
                 </div>
             </div>                    
