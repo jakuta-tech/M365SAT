@@ -56,7 +56,7 @@ function Audit-CISMSp733
 			if ($DNAIFSP.DelayDenyAddAndCustomizePagesEnforcement -ne $true)
 			{
 				$DNAIFSP | Format-Table -AutoSize | Out-File "$path\CISMSp732-SPOTenant.txt"
-				$endobject = Build-CISMSp731("DelayDenyAddAndCustomizePagesEnforcement: $($DNAIFSP.DelayDenyAddAndCustomizePagesEnforcement)")
+				$endobject = Build-CISMSp733("DelayDenyAddAndCustomizePagesEnforcement: $($DNAIFSP.DelayDenyAddAndCustomizePagesEnforcement)")
 				return $endobject
 			}
 			return $null
