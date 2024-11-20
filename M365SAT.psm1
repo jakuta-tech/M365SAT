@@ -203,8 +203,8 @@ function Get-M365SATReport
 		$inspectorlist = Get-M365SATLocalChecks -Directory $Directory -EnvironmentType $EnvironmentType -BenchmarkVersion $BenchmarkVersion -Modules $Modules -LicenseMode $LicenseMode -LicenseLevel $LicenseLevel #Gets list of all inspectors
 		if ($ExpirimentalMode.IsPresent)
 		{
-			Write-Host "$(Get-Date): Executing Inspectors in MultiThread Mode..."
-			$object = Invoke-M365SATChecksV2 -inspectors $inspectorlist -Directory $Directory
+			Write-Host "$(Get-Date): Executing Inspectors in Expirimental Mode..."
+			$object = Invoke-M365SATChecksNew -inspectors $inspectorlist -Directory $Directory
 		}
 		else
 		{
@@ -220,8 +220,8 @@ function Get-M365SATReport
 		{
 			Write-Host "$(Get-Date): Creating Directories..."
 			New-Item -ItemType Directory -Force -Path "$($OutPath)\evidence" | Out-Null
-			Write-Host "$(Get-Date): Executing Inspectors in MultiThread Mode..."
-			$object = Invoke-M365SATChecksV2 -inspectors $inspectorlist -Directory $Directory
+			Write-Host "$(Get-Date): Executing Inspectors in Expirimental Mode..."
+			$object = Invoke-M365SATChecksNew -inspectors $inspectorlist -Directory $Directory
 		}
 		else
 		{
