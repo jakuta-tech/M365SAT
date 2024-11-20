@@ -169,17 +169,58 @@ function Get-M365SATLocalChecks($Directory, $EnvironmentType, $BenchmarkVersion,
 					}
 				}
 			}
-			"CUSTOM"{
+			"CUSTOM" {  
 				#Unblock All Files
 				Get-ChildItem -Path $Directory\$_ -Recurse | Unblock-File
 				foreach ($Module in $Modules){
-				$CustomInspectors = Get-ChildItem $Directory\$CUSTOMFolder\$Module\*.ps1
-					foreach ($inspector in $CustomInspectors)
-					{
-						[string]$fullname = $inspector.FullName
-						[string]$name = ($inspector.Name -split ".ps1")[0]
-						$listfullinspectors += @(@{ 'FullName' = $fullname; 'Name' = $name })
+					switch ($LicenseMode) {
+						"E3" { 
+							switch ($LicenseLevel) {
+								"L1" {
+									$E3L1Inspectors = Get-ChildItem $Directory\$CUSTOMFolder\$Module\$E3Folder\$L1Folder\*.ps1 
+									foreach ($inspector in $E3L1Inspectors)
+									{
+										[string]$fullname = $inspector.FullName
+										[string]$name = ($inspector.Name -split ".ps1")[0]
+										$listfullinspectors += @(@{ 'FullName' = $fullname; 'Name' = $name })
+									}
+								}
+								"L2" {
+									$E3L2Inspectors = Get-ChildItem $Directory\$CUSTOMFolder\$Module\$E3Folder\$L2Folder\*.ps1 
+									foreach ($inspector in $E3L2Inspectors)
+									{
+										[string]$fullname = $inspector.FullName
+										[string]$name = ($inspector.Name -split ".ps1")[0]
+										$listfullinspectors += @(@{ 'FullName' = $fullname; 'Name' = $name })
+									}
+								}
+							}
+							
+						 }
+						"E5" {
+							switch ($LicenseLevel) {
+								"L1" {  
+									$E5L1Inspectors = Get-ChildItem $Directory\$CUSTOMFolder\$Module\$E5Folder\$L1Folder\*.ps1 
+									foreach ($inspector in $E5L1Inspectors)
+									{
+										[string]$fullname = $inspector.FullName
+										[string]$name = ($inspector.Name -split ".ps1")[0]
+										$listfullinspectors += @(@{ 'FullName' = $fullname; 'Name' = $name })
+									}
+								}
+								"L2" {
+									$E5L2Inspectors = Get-ChildItem $Directory\$CUSTOMFolder\$Module\$E5Folder\$L2Folder\*.ps1 
+									foreach ($inspector in $E5L2Inspectors)
+									{
+										[string]$fullname = $inspector.FullName
+										[string]$name = ($inspector.Name -split ".ps1")[0]
+										$listfullinspectors += @(@{ 'FullName' = $fullname; 'Name' = $name })
+									}
+								}
+							}
+						}
 					}
+					
 				}
 			}
 		}

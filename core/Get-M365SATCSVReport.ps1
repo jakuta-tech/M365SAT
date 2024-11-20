@@ -10,7 +10,7 @@ function Get-M365SATCSVReport
         $ReportDate = $object.EndDate
 
         # Sort all findings
-        $SortedFindings = $object.Findings | Sort-Object -Descending { Switch -Regex ($_.RiskRating) { 'Critical' { 1 }	'High' { 2 } 'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.RiskScore }
+        $SortedFindings = $object.Findings | Sort-Object $_.ID
 
         #CompanyName
         try{
@@ -34,31 +34,27 @@ function Get-M365SATCSVReport
                 $FindingCounter += 1
 
                 # Create empty list for References
-                $refs = @()
-                foreach ($Reference in $SortedFindings.References){
-                    $refs += "$($Reference.Name) : $($Reference.URL)"
+                $refs = New-Object System.Collections.ArrayList
+                foreach ($Reference in $finding.References){
+                    $refs.Add("$($Reference.Name) : $($Reference.URL)") | Out-Null
                 }
+                $finalrefs = $refs -join '^'
+                $refs.Clear()
             }
             $result = [PSCustomObject]@{
-                ID			     = $finding.ID
-                FindingName	     = $finding.FindingName
-                ProductFamily    = $finding.ProductFamily
-                RiskScore	     = $finding.RiskScore
-                Description	     = $finding.Description
-                Remediation	     = $finding.Remediation
-                PowerShellScript = $finding.PowerShellScript
-                DefaultValue	 = $finding.DefaultValue
-                ExpectedValue    = $finding.ExpectedValue
-                ReturnedValue    = $finding.ReturnedValue
-                Impact		     = $finding.Impact
-                Likelihood	     = $finding.Likelihood
-                RiskRating	     = $finding.RiskRating
-                Priority		 = $finding.Priority
-                References	     = $refs
-                'Remediation Status' = " "
-                'Start Date'         = " "
-                'Completion Date'    = " "
+                UUID                 = $finding.UUID
+                ID			         = $finding.ID
+                Title                = $finding.Title
+                ProductFamily        = $finding.ProductFamily
+                DefaultValue	     = $finding.DefaultValue
+                ExpectedValue        = $finding.ExpectedValue
+                ReturnedValue        = $("$($finding.ReturnedValue)" | Out-String).Trim()
+                'Remediation Status' = $finding.Status
                 'Notes'              = " "
+                Description	         = $finding.Description
+                Impact               = $finding.Impact
+                Remediation          = $(($finding.Remediation) -join " ")
+                References           = $finalrefs
             }
             $FinalFindings += $result
         }
