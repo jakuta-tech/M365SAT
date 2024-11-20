@@ -27,7 +27,7 @@ function Build-CISMOff131($findings)
 		ReturnedValue    = $findings
 		Impact		     = "3"
 		Likelihood	     = "5"
-		RiskRating	     = "Low"
+		RiskRating	     = "High"
 		Priority		 = "High"
 		References	     = @(@{ 'Name' = 'NIST Special Publication 800-63B'; 'URL' = 'https://pages.nist.gov/800-63-3/sp800-63b.html' },
 		@{ 'Name' = 'CIS Password Policy Guide'; 'URL' = 'https://www.cisecurity.org/insights/white-papers/cis-password-policy-guide' },
