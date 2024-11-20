@@ -59,7 +59,7 @@ function Audit-CISMOff138
 		}
 		else
 		{
-			$endobject = Build-CISMOff138 -ReturnedValue $AffectedSettings -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff138 -ReturnedValue $SwaySetting.ExternalSharingEnabled -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 	}

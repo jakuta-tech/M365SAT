@@ -58,7 +58,7 @@ function Audit-CISMOff137
 		}
 		else
 		{
-			$endobject = Build-CISMOff137 -ReturnedValue $AffectedSettings -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff137 -ReturnedValue $Office365WebSettings.Enabled -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 	}
