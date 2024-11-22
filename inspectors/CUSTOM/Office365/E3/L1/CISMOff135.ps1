@@ -59,7 +59,7 @@ function Audit-CISMOff135
 		}
 		else
 		{
-			$endobject = Build-CISMOff135 -ReturnedValue $AffectedSettings -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff135 -ReturnedValue $("InOrgFormsPhishingScanEnabled: $($MSFormsSetting.InOrgFormsPhishingScanEnabled)") -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 	}

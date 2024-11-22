@@ -61,7 +61,7 @@ function Audit-CISMOff134
 		}
 		else
 		{
-			$endobject = Build-CISMOff134 -ReturnedValue $AffectedSettings -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff134 -ReturnedValue $("iwpurchaseallowed: $($AccessStoreSetting) \n iwpurchasefeatureenabled: $($StartTrialsSetting)") -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 	}

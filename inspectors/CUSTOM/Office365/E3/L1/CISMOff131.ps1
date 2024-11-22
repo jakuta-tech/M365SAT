@@ -62,7 +62,7 @@ function Audit-CISMOff131
 		}
 		else
 		{
-			$endobject = Build-CISMOff131 -ReturnedValue $AffectedOptions -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff131 -ReturnedValue $("$GetSettings.PasswordValidityPeriodInDays") -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 	}
