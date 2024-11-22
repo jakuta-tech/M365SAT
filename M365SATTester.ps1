@@ -7,7 +7,7 @@ function ExecuteM365SAT
 
 	#Get-M365SATReport -OutPath "C:\Out" -Username "example@example.org" -EnvironmentType AZURE,M365 -BenchmarkVersion "Latest" -Modules "All" -LicenseMode "All" -LicenseLevel "All" -reportType "HTML" -AllowLogging "Warning" -LocalMode -SkipChecks
 	# Get-M365SATReport -OutPath "C:\Out" -Username "example@example.org" -EnvironmentType M365 -BenchmarkVersion "Latest" -Modules "All" -LicenseMode "E3" -LicenseLevel "All" -reportType "HTML" -AllowLogging "Warning" -LocalMode -SkipChecks
-	Get-M365SATReport -OutPath "C:\Out" -Username "example@example.org" -EnvironmentType CUSTOM -BenchmarkVersion "Latest" -Modules Office365 -LicenseMode "E3" -LicenseLevel "All" -reportType "CSV" -AllowLogging "Warning" -LocalMode -SkipChecks
+	Get-M365SATReport -OutPath "C:\Out" -Username "example@example.org" -EnvironmentType CUSTOM -BenchmarkVersion "Latest" -Modules Office365 -LicenseMode "E3" -LicenseLevel "All" -reportType "CSV" -AllowLogging "Warning" -LocalMode -SkipChecks -ExpirimentalMode 
 	#Get-M365SATReport -OutPath "C:\Out" -Username "example@example.org" -EnvironmentType M365 -BenchmarkVersion "Latest" -Modules Exchange,Azure -LicenseMode "E3" -LicenseLevel "All" -reportType "HTML" -AllowLogging "Warning" -LocalMode -SkipChecks
 	
 	<# END OF MAKING CHANGES #>
