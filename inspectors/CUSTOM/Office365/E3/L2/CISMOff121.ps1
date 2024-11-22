@@ -56,7 +56,7 @@ function Audit-CISMOff121
 		}
 		else
 		{
-			$endobject = Build-CISMOff121 -ReturnedValue $PublicGroups -Status "OK" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff121 -ReturnedValue $PublicGroups -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 		
