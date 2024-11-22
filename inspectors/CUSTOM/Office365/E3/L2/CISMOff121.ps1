@@ -28,7 +28,7 @@ function Build-CISMOff121
 		ProductFamily    = "Microsoft Office 365"
 		DefaultValue	 = "Public when created from the Administration portal; private otherwise."
 		ExpectedValue    = "0 Public Groups"
-		ReturnedValue    = "$($ReturnedValue.Count) Public Groups"
+		ReturnedValue    = "$ReturnedValue Public Groups"
 		Status			 = $Status
 		RiskScore	     = $RiskScore
 		RiskRating	     = $RiskRating
@@ -48,15 +48,15 @@ function Audit-CISMOff121
 		
 		$PublicGroups = (Get-MgGroup | Where-Object { $_.Visibility -eq "Public" } | Select-Object DisplayName, Visibility)
 		
-		If ($PublicGroups.Count -igt 0)
+		If ($PublicGroups.DisplayName.Count -igt 0)
 		{
-			$PublicGroups | Format-Table -AutoSize DisplayName, Visibility | Out-File "$path\CISMOff121-PublicGroups.txt"
-			$endobject = Build-CISMOff121 -ReturnedValue $PublicGroups -Status "FAIL" -RiskScore "0" -RiskRating "Informational"
+			#$PublicGroups | Format-Table -AutoSize DisplayName, Visibility | Out-File "$path\CISMOff121-PublicGroups.txt"
+			$endobject = Build-CISMOff121 -ReturnedValue $PublicGroups.DisplayName.Count -Status "FAIL" -RiskScore "0" -RiskRating "Informational"
 			Return $endobject
 		}
 		else
 		{
-			$endobject = Build-CISMOff121 -ReturnedValue $PublicGroups -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff121 -ReturnedValue $PublicGroups.DisplayName.Count -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 		
