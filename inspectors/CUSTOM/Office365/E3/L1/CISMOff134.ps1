@@ -50,9 +50,17 @@ function Audit-CISMOff134
 		{
 			$AffectedSettings += "iwpurchaseallowed: $($AccessStoreSetting)"
 		}
+		else 
+		{
+			$CorrectSettings += "iwpurchaseallowed: $($AccessStoreSetting)"
+		}
 		if ($StartTrialsSetting -eq $true)
 		{
 			$AffectedSettings += "iwpurchasefeatureenabled: $($StartTrialsSetting)"
+		}
+		else
+		{
+			$CorrectSettings += "iwpurchasefeatureenabled: $($StartTrialsSetting)"
 		}
 		if ($AffectedSettings.Count -igt 0)
 		{
@@ -61,7 +69,7 @@ function Audit-CISMOff134
 		}
 		else
 		{
-			$endobject = Build-CISMOff134 -ReturnedValue $("iwpurchaseallowed: $($AccessStoreSetting) \n iwpurchasefeatureenabled: $($StartTrialsSetting)") -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff134 -ReturnedValue $CorrectSettings -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 	}

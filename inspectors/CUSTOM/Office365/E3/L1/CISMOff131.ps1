@@ -44,6 +44,7 @@ function Audit-CISMOff131
 	{
 		# Actual Script
 		$AffectedOptions = @()
+		$CorrectOptions = @()
 		$Domains = Get-MgDomain
 		ForEach ($Domain in $Domains)
 		{
@@ -51,6 +52,10 @@ function Audit-CISMOff131
 			if ($GetSettings.PasswordValidityPeriodInDays -ne 2147483647 -and $GetSettings.PasswordNotificationWindowInDays -ne 30)
 			{
 				$AffectedOptions += "Domain: $($GetSettings.Id): PasswordValidityPeriodInDays is $($GetSettings.PasswordValidityPeriodInDays)"
+			}
+			else
+			{
+				$CorrectOptions += "Domain: $($GetSettings.Id): PasswordValidityPeriodInDays is $($GetSettings.PasswordValidityPeriodInDays)"
 			}
 		}
 		
@@ -62,7 +67,7 @@ function Audit-CISMOff131
 		}
 		else
 		{
-			$endobject = Build-CISMOff131 -ReturnedValue $("$GetSettings.PasswordValidityPeriodInDays") -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMOff131 -ReturnedValue $CorrectOptions -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 	}
