@@ -67,7 +67,7 @@ function Get-M365SATHTMLReport
 	
 	$StartDate = $object.StartDate
 	$ReportDate = $object.EndDate
-	$Version = "2.4 alpha"
+	$Version = "3.0 beta"
 	
 	# Summary (Critical,High,Medium,Low,Informational)
 	
