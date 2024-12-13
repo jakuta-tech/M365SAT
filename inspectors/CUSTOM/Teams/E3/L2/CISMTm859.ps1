@@ -48,15 +48,22 @@ function Audit-CISMTm859
 		if ($MicrosoftTeamsCheck.AllowCloudRecording -eq $True)
 		{
 			$MicrosoftTeamsCheck | Format-Table -AutoSize | Out-File "$path\CISMTm859-TeamsMeetingPolicy.txt"
-			$endobject = Build-CISMTm859($MicrosoftTeamsCheck.AllowCloudRecording)
+			$endobject = Build-CISMTm859 -ReturnedValue ($MicrosoftTeamsCheck.AllowCloudRecording) -Status "FAIL" -RiskScore "15" -RiskRating "High"
 			return $endobject
+		}
+		else
+		{
+			$endobject = Build-CISMTm859 -ReturnedValue ($MicrosoftTeamsCheck.AllowCloudRecording) -Status "PASS" -RiskScore "0" -RiskRating "None"
+			Return $endobject
 		}
 		return $null
 	}
 	catch
 	{
+		$endobject = Build-CISMTm859 -ReturnedValue "UNKNOWN" -Status "UNKNOWN" -RiskScore "0" -RiskRating "UNKNOWN"
 		Write-WarningLog 'The Inspector: {inspector} was terminated!' -PropertyValues $_.InvocationInfo.ScriptName
 		Write-ErrorLog 'An error occured on line {line} char {char} : {error}' -ErrorRecord $_ -PropertyValues $_.InvocationInfo.ScriptLineNumber, $_.InvocationInfo.OffsetInLine, $_.InvocationInfo.Line
+		return $endobject
 	}
 }
 return Audit-CISMTm859

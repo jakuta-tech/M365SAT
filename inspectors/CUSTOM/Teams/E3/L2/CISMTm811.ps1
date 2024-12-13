@@ -37,30 +37,6 @@ function Build-CISMTm811
     return $inspectorobject
 }
 
-
-function Build-CISMTm811($findings)
-{
-	#Actual Inspector Object that will be returned. All object values are required to be filled in.
-	$inspectorobject = New-Object PSObject -Property @{
-		ID			     = "CISMTm811"
-		FindingName	     = "CISM Tm 8.1.1 - External file sharing in Teams is not enabled for only approved cloud storage services"
-		ProductFamily    = "Microsoft Teams"
-		RiskScore	     = "15"
-		Description	     = "Ensuring that only authorized cloud storage providers are accessible from Teams will help to dissuade the use of non-approved storage providers."
-		Remediation	     = "Use the PowerShell script to disallow External File Sharing:"
-		PowerShellScript = 'Set-CsTeamsClientConfiguration -AllowGoogleDrive $false -AllowShareFile $false -AllowBox $false -AllowDropBox $false -AllowEgnyte $false'
-		DefaultValue	 = "All True"
-		ExpectedValue    = "All False"
-		ReturnedValue    = $findings
-		Impact		     = "3"
-		Likelihood	     = "5"
-		RiskRating	     = "High"
-		Priority		 = "High"
-		References	     = @(@{ 'Name' = 'Manage Skype for Business Online with PowerShell'; 'URL' = "https://learn.microsoft.com/en-us/microsoft-365/enterprise/manage-skype-for-business-online-with-microsoft-365-powershell?view=o365-worldwide" })
-	}
-	return $inspectorobject
-}
-
 function Audit-CISMTm811
 {
 	try
