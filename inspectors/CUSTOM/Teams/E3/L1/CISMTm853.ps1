@@ -49,12 +49,12 @@ function Audit-CISMTm853
 		if ($MicrosoftTeamsCheck.AutoAdmittedUsers -ne "EveryoneInCompanyExcludingGuests")
 		{
 			$MicrosoftTeamsCheck | Format-Table -AutoSize | Out-File "$path\CISMTm853-TeamsMeetingPolicy.txt"
-			$endobject = Build-CISMTm853 -ReturnedValue ($MicrosoftTeamsCheck.AllowEmailIntoChannel) -Status "FAIL" -RiskScore "15" -RiskRating "High"
+			$endobject = Build-CISMTm853 -ReturnedValue ($MicrosoftTeamsCheck.AutoAdmittedUsers) -Status "FAIL" -RiskScore "15" -RiskRating "High"
 			return $endobject
 		}
 		else
 		{
-			$endobject = Build-CISMTm853 -ReturnedValue ($MicrosoftTeamsCheck.AllowEmailIntoChannel) -Status "PASS" -RiskScore "0" -RiskRating "None"
+			$endobject = Build-CISMTm853 -ReturnedValue ($MicrosoftTeamsCheck.AutoAdmittedUsers) -Status "PASS" -RiskScore "0" -RiskRating "None"
 			Return $endobject
 		}
 		return $null
