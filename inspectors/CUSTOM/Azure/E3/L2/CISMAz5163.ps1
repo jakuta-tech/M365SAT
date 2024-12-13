@@ -19,7 +19,7 @@ function Build-CISMAz5163
     $inspectorobject = New-Object PSObject -Property @{
         UUID             = "CISMAz5163"
         ID               = "5.1.6.3"
-        Title            = "Guest User Access is Not Restricted"
+        Title            = "(L2) Ensure guest user invitations are limited to the Guest Inviter role"
         ProductFamily    = "Microsoft Azure"
         DefaultValue     = "everyone"
         ExpectedValue    = "adminsAndGuestInviters or more restrictive"

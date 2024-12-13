@@ -19,7 +19,7 @@ function Build-CISMAz5151
     $inspectorobject = New-Object PSObject -Property @{
         UUID             = "CISMAz5151"
         ID               = "5.1.5.1"
-        Title            = "User Consent to Apps Accessing Company Data on Their Behalf is Allowed"
+        Title            = "(L2) Ensure user consent to apps accessing company data on their behalf is not allowed"
         ProductFamily    = "Microsoft Azure"
         DefaultValue     = "UI - Allow user consent for apps"
         ExpectedValue    = "UI - Do not allow user consent"
