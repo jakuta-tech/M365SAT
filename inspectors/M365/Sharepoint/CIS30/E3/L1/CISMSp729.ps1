@@ -1,12 +1,15 @@
 # Date: 25-1-2023
 # Version: 1.0
-# Benchmark: CIS Microsoft 365 v3.0.0
+# Benchmark: CIS Microsoft 365 v3.1.0
 # Product Family: Microsoft Sharepoint
 # Purpose: Ensure modern authentication for SharePoint applications is required
 # Author: Leonardo van de Weteringh
 
 # New Error Handler Will be Called here
 Import-Module PoShLog
+
+# Determine OutPath
+$path = @($OutPath)
 
 function Build-CISMSp729($findings)
 {
@@ -36,25 +39,51 @@ function Audit-CISMSp729
 {
 	try
 	{
-		# Actual Script
-		$AffectedOptions = @()
-		$SharepointSetting = Get-SPOTenant | Format-Table ExternalUserExpirationRequired, ExternalUserExpireInDays
-		if ($SharepointSetting.ExternalUserExpireInDays -igt 30)
+		$Module = Get-Module PnP.PowerShell -ListAvailable
+		if(-not [string]::IsNullOrEmpty($Module))
 		{
-			$AffectedOptions += "ExternalUserExpireInDays: $($SharepointSetting.ExternalUserExpireInDays)"
+			# Actual Script
+			$AffectedOptions = @()
+			$SharepointSetting = Get-PnPTenant | Format-Table ExternalUserExpirationRequired, ExternalUserExpireInDays
+			if ($SharepointSetting.ExternalUserExpireInDays -igt 30)
+			{
+				$AffectedOptions += "ExternalUserExpireInDays: $($SharepointSetting.ExternalUserExpireInDays)"
+			}
+			if ($SharepointSetting.ExternalUserExpirationRequired -ne $True)
+			{
+				$AffectedOptions += "ExternalUserExpirationRequired: False"
+			}
+			# Validation
+			if ($AffectedOptions.Count -ne 0)
+			{
+				$SharepointSetting | Format-Table -AutoSize | Out-File "$path\CISMSp729-SPOTenant.txt"
+				$finalobject = Build-CISMSp729($AffectedOptions)
+				return $finalobject
+			}
+			return $null			
 		}
-		if ($SharepointSetting.ExternalUserExpirationRequired -ne $True)
+		else
 		{
-			$AffectedOptions += "ExternalUserExpirationRequired: False"
+			# Actual Script
+			$AffectedOptions = @()
+			$SharepointSetting = Get-SPOTenant | Format-Table ExternalUserExpirationRequired, ExternalUserExpireInDays
+			if ($SharepointSetting.ExternalUserExpireInDays -igt 30)
+			{
+				$AffectedOptions += "ExternalUserExpireInDays: $($SharepointSetting.ExternalUserExpireInDays)"
+			}
+			if ($SharepointSetting.ExternalUserExpirationRequired -ne $True)
+			{
+				$AffectedOptions += "ExternalUserExpirationRequired: False"
+			}
+			# Validation
+			if ($AffectedOptions.Count -ne 0)
+			{
+				$SharepointSetting | Format-Table -AutoSize | Out-File "$path\CISMSp729-SPOTenant.txt"
+				$finalobject = Build-CISMSp729($AffectedOptions)
+				return $finalobject
+			}
+			return $null			
 		}
-		# Validation
-		if ($AffectedOptions.Count -ne 0)
-		{
-			$SharepointSetting | Format-Table -AutoSize | Out-File "$path\CISMSp729-SPOTenant.txt"
-			$finalobject = Build-CISMSp729($AffectedOptions)
-			return $finalobject
-		}
-		return $null
 	}
 	catch
 	{

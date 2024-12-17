@@ -3,13 +3,44 @@
 function Get-M365SATHTMLReport
 {
 	Param ($object,
+        $Modules,
 		$OutPath,
 		$inspectors)
 	
 	# All Attributes must be stated below
-	#Inititialize RootObject Dummy
-	$Icons = @("https://shorturl.at/hlqvV", "https://shorturl.at/kquU1", "https://shorturl.at/pzVX6", "https://shorturl.at/xyHT9", "https://shorturl.at/rFMNO")
-	$ProductFamilies = @("Microsoft Teams", "Microsoft Exchange", "Microsoft Azure", "Microsoft Sharepoint", "Microsoft Office 365")
+	#Inititialize Variable
+    $ProductFamilies = [Array]@()
+	$ExchangeObject = @()
+	$TeamsObject = @()
+	$AzureObject = @()
+	$SharepointObject = @()
+    $Icons = @("https://shorturl.at/hlqvV", "https://shorturl.at/kquU1", "https://shorturl.at/pzVX6", "https://shorturl.at/xyHT9", "https://shorturl.at/rFMNO")
+	
+    if ($Modules.Contains("All"))
+	{
+		$ProductFamilies = @("Microsoft Teams", "Microsoft Exchange", "Microsoft Azure", "Microsoft Sharepoint", "Microsoft Office 365")
+	}
+    else
+    {
+        switch($Modules){
+            "Azure"{
+                $ProductFamilies +=  "Microsoft Azure"
+            }
+            "Exchange"{
+                $ProductFamilies += "Microsoft Exchange"
+            }
+            "Office365"{
+                $ProductFamilies += "Microsoft Office 365"
+            }
+            "Sharepoint"{
+                $ProductFamilies += "Microsoft Sharepoint"
+            }
+            "Teams"{
+                $ProductFamilies += "Microsoft Teams"
+            }
+        }
+    }
+
 	$i = 0
 
     try{
@@ -22,11 +53,7 @@ function Get-M365SATHTMLReport
         $TenantName = ((Get-AcceptedDomain |  Where-Object {  { $_.Default -eq 'True' } -and ($_.DomainName -like "*.onmicrosoft.com") -and ($_.DomainName -notlike "*mail.onmicrosoft.com") }).DomainName -split '.onmicrosoft.com')[0]
     }
 	
-	#Initialize Objects
-	$ExchangeObject = @()
-	$TeamsObject = @()
-	$AzureObject = @()
-	$SharepointObject = @()
+
 	
 	#AffectedObjects Definition
 	$AffectedObjects = $(foreach ($Affected in $object.Findings) { $Affected | ? { $_.Priority -and $_.RiskRating -ne $null } }).Count
@@ -40,7 +67,7 @@ function Get-M365SATHTMLReport
 	
 	$StartDate = $object.StartDate
 	$ReportDate = $object.EndDate
-	$Version = "2.3"
+	$Version = "3.0 beta"
 	
 	# Summary (Critical,High,Medium,Low,Informational)
 	
@@ -69,13 +96,13 @@ function Get-M365SATHTMLReport
         <!-- Required meta tags -->
         <meta charset='utf-8'>
         <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
-        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' crossorigin='anonymous'>
-        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css' crossorigin='anonymous'>
+        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css' crossorigin='anonymous'>
+        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css' crossorigin='anonymous'>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js' crossorigin='anonymous'></script>
-        <script src='https://code.jquery.com/jquery-3.7.0.slim.js' integrity='sha256-7GO+jepT9gJe9LB4XFf8snVOjX3iYNb0FHYr5LI1N5c=' crossorigin='anonymous'></script>
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.js'></script>
+        <script src='https://code.jquery.com/jquery-3.7.1.slim.js' integrity='sha256-7GO+jepT9gJe9LB4XFf8snVOjX3iYNb0FHYr5LI1N5c=' crossorigin='anonymous'></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/js/all.js'></script>
         <!-- To be fixed:-->
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0/js/bootstrap.min.js' crossorigin='anonymous'></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js' crossorigin='anonymous'></script>
         <script src='https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js'></script>
 
         <style>
@@ -553,7 +580,7 @@ function Get-M365SATHTMLReport
                 <div class='col-sm-8'>
                     <h6>Configuration Health Index</h6>                  
                     <p>The configuration health index is a weighted value representing your configuration. Not all configuration is 
-                    considered the same. Some configuration is weighted higher than others. <a href='https://github.com/karmakstylez/M365SAT' target='_blank'>See More... </a></p>
+                    considered the same. Some configuration is weighted higher than others. <a href='https://github.com/aster-lvdw/M365SAT' target='_blank'>See More... </a></p>
 
                 </div>
             </div>                    
@@ -602,7 +629,7 @@ function Get-M365SATHTMLReport
 		$Low = 0
 		$Info = 0
 		
-		$Products = $(foreach ($Product in $object.Findings) { $Product | ? { $_.ProductFamily -eq $Productfamily } })
+		$Products = $(foreach ($Product in $object.Findings) { $Product | Where-Object { $_.ProductFamily -eq $Productfamily } })
 		foreach ($Prod in $Products)
 		{
 			if ($Prod.RiskRating -eq "Critical")
@@ -686,7 +713,7 @@ function Get-M365SATHTMLReport
 	
 	ForEach ($Productfamily in $ProductFamilies)
 	{
-		$Products = $(foreach ($Product in $object.Findings) { $Product | ? { $_.ProductFamily -eq $Productfamily } }) | Sort-Object -Descending { Switch -Regex ($_.RiskRating) { 'Critical' { 1 }	'High' { 2 } 'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.RiskScore}
+		$Products = $(foreach ($Product in $object.Findings) { $Product | Where-Object { $_.ProductFamily -eq $Productfamily } }) | Sort-Object -Descending { Switch -Regex ($_.RiskRating) { 'Informational' { 1 }	'Low' { 2 }	'Medium' { 3 }	'High' { 4 }	'Critical' { 5 } }; $_.RiskScore},{$_.RiskScore}
 		#$Products = $(foreach ($Product in $object.Findings) { $Product | ? { $_.ProductFamily -eq $Productfamily } }) | Sort-Object -Property {[decimal]$_.CVS}
 		$CollapseId = $($Productfamily).Replace(" ", "_")
 		$Output += "<a name='$($Productfamily)'></a> 
@@ -705,7 +732,7 @@ function Get-M365SATHTMLReport
 				$CalloutType = "bd-callout-info"
 				$BadgeType = "card-prio-info"
 				$BadgeName = "Informational"
-				$Icon = "fas fa-thumbs-up"
+				$Icon = "fa-solid fa-circle-info"
 				$IconColor = "#2986CC"
 				$Title = $Check.PassText
 			}
@@ -714,7 +741,7 @@ function Get-M365SATHTMLReport
 				$CalloutType = "bd-callout-success"
 				$BadgeType = "card-prio-low"
 				$BadgeName = "Low"
-				$Icon = "fas fa-thumbs-up"
+				$Icon = "fa-solid fa-circle-question"
 				$IconColor = "#38761D"
 				$Title = $Check.PassText
 			}
@@ -723,7 +750,7 @@ function Get-M365SATHTMLReport
 				$CalloutType = "bd-callout-warning"
 				$BadgeType = "card-prio-medium"
 				$BadgeName = "Medium"
-				$Icon = "fas fa-thumbs-down"
+				$Icon = "fa-solid fa-circle-radiation"
 				$IconColor = "#FFC107"
 				$Title = $Check.FailRecommendation
 			}
@@ -732,7 +759,7 @@ function Get-M365SATHTMLReport
 				$CalloutType = "bd-callout-danger"
 				$BadgeType = "card-prio-high"
 				$BadgeName = "High"
-				$Icon = "fas fa-thumbs-down"
+				$Icon = "fa-solid fa-circle-xmark"
 				$IconColor = "#FF1100"
 				$Title = $Check.FailRecommendation
 			}
@@ -741,7 +768,7 @@ function Get-M365SATHTMLReport
 				$CalloutType = "bd-callout-critical"
 				$BadgeType = "card-prio-critical"
 				$BadgeName = "Critical"
-				$Icon = "fas fa-thumbs-down"
+				$Icon = "fa-solid fa-circle-exclamation"
 				$IconColor = "#660000"
 				$Title = $Check.FailRecommendation
 			}

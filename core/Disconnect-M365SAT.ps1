@@ -14,6 +14,8 @@ function Disconnect-M365SAT($Modules)
 				try
 				{
 					Disconnect-AzAccount | Out-Null
+					# Set the correct setting back to default
+					Set-AzConfig -EnableLoginByWam $true -LoginExperienceV2 'On'
 					$DisconnectAzure = $True
 				}
 				catch
@@ -24,6 +26,8 @@ function Disconnect-M365SAT($Modules)
 			Write-Output "Disconnecting Microsoft Graph..."
 			try
 			{
+				#Revoke all RefreshTokens as a Security Measure
+				Invoke-MgBetaInvalidateAllUserRefreshToken -UserId (Get-MgContext).Account
 				Disconnect-MgGraph | Out-Null
 				$DisconnectGraph = $True
 			}

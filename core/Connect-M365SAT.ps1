@@ -2,6 +2,13 @@
 <# Due to issues with Powershell 7 you need to additionally import modules in compatibility mode in order to make them work correctly #>
 function Connect-M365SAT
 {
+	param(
+		[string]$Username, 
+		[SecureString]$Password, 
+		[String[]]$Modules, 
+		[string]$Environment
+	)
+
 	Import-Module PoShLog
 	. $PSScriptRoot\m365connectors\Connect-MicrosoftAzure.ps1
 	. $PSScriptRoot\m365connectors\Connect-MicrosoftExchange.ps1
@@ -17,6 +24,9 @@ function Connect-M365SAT
 	[bool]$ExchangeAuth = $false
 	[bool]$SharepointAuth = $false
 	[bool]$TeamsAuth = $false
+
+	# The new LoginByWam and LoginExperienceV2 does not work properly thus need to be disabled in order to function properly in PowerShell 5 and 7.
+	Set-AzConfig -EnableLoginByWam $false -LoginExperienceV2 'Off' #It will be enabled back once the audit is done.
 
 	if ($PSVersionTable.PSVersion.Major -igt 5)
 		{
@@ -46,14 +56,14 @@ function Connect-M365SAT
 	switch ($Modules) {
 		"Azure" {
 			if (![string]::IsNullOrEmpty($Password)){
-				$AzureConnection = Invoke-MicrosoftAzureCredentials($Credential)
+				$AzureConnection = Invoke-MicrosoftAzureCredentials -Credential $Credential -Environment $Environment
 				if (!$AzureConnection)
 				{
 					break
 				}else{
 					$AzureAuth = $true
 				}
-				$GraphOrgName = Invoke-MicrosoftGraphCredentials
+				$GraphOrgName = Invoke-MicrosoftGraphCredentials -Environment $Environment
 				if ([string]::IsNullOrEmpty($GraphOrgName))
 				{
 					break
@@ -61,14 +71,14 @@ function Connect-M365SAT
 					$GraphAuth = $true
 				}
 			}else{
-				$AzureConnection = Invoke-MicrosoftAzureUsername($Username)
+				$AzureConnection = Invoke-MicrosoftAzureUsername -Username $UserName -Environment $Environment
 				if (!$AzureConnection)
 				{
 					break
 				}else{
 					$AzureAuth = $true
 				}
-				$GraphOrgName = Invoke-MicrosoftGraphUsername
+				$GraphOrgName = Invoke-MicrosoftGraphUsername -Environment $Environment
 				if ([string]::IsNullOrEmpty($GraphOrgName))
 				{
 					break
@@ -79,14 +89,23 @@ function Connect-M365SAT
 		}
 		"Exchange" {	
 			if (![string]::IsNullOrEmpty($Password)){
-				$MSCConnection = Invoke-MicrosoftSecurityComplianceCredentials($Credential)
+				if ($GraphAuth -ne $true){
+					$GraphOrgName = Invoke-MicrosoftGraphUsername -Environment $Environment
+					if ([string]::IsNullOrEmpty($GraphOrgName))
+					{
+						break
+					}else{
+						$GraphAuth = $true
+					}
+				}
+				$MSCConnection = Invoke-MicrosoftSecurityComplianceCredentials -Credential $Credential -Environment $Environment
 				if (!$MSCConnection)
 				{
 					break
 				}else{
 					$SecurityComplianceAuth = $true
 				}
-				$ExchangeOrgName = Invoke-MicrosoftExchangeCredentials($Credential)
+				$ExchangeOrgName = Invoke-MicrosoftExchangeCredentials -Credential $Credential -Environment $Environment
 				if ([string]::IsNullOrEmpty($ExchangeOrgName))
 				{
 					break
@@ -95,7 +114,7 @@ function Connect-M365SAT
 				}
 			}else{
 				if ($GraphAuth -ne $true){
-					$GraphOrgName = Invoke-MicrosoftGraphUsername
+					$GraphOrgName = Invoke-MicrosoftGraphUsername -Environment $Environment
 					if ([string]::IsNullOrEmpty($GraphOrgName))
 					{
 						break
@@ -103,14 +122,14 @@ function Connect-M365SAT
 						$GraphAuth = $true
 					}
 				}
-				$MSCConnection = Invoke-MicrosoftSecurityComplianceUsername($Username)
+				$MSCConnection = Invoke-MicrosoftSecurityComplianceUsername -Username $UserName -Environment $Environment
 				if (!$MSCConnection)
 				{
 					break
 				}else{
 					$SecurityComplianceAuth = $true
 				}
-				$ExchangeOrgName = Invoke-MicrosoftExchangeUsername($Username)
+				$ExchangeOrgName = Invoke-MicrosoftExchangeUsername -Username $UserName -Environment $Environment
 				if ([string]::IsNullOrEmpty($ExchangeOrgName))
 				{
 					break
@@ -122,7 +141,7 @@ function Connect-M365SAT
 		"Office365"{
 			if ($AzureAuth -ne $true){
 				if (![string]::IsNullOrEmpty($Password)){
-					$AzureConnection = Invoke-MicrosoftAzureCredentials($Credential)
+					$AzureConnection = Invoke-MicrosoftAzureCredentials -Credential $Credential -Environment $Environment
 					if (!$AzureConnection)
 					{
 						break
@@ -130,7 +149,7 @@ function Connect-M365SAT
 						$AzureAuth = $true
 					}
 				}else{
-					$AzureConnection = Invoke-MicrosoftAzureUsername($Username)
+					$AzureConnection = Invoke-MicrosoftAzureUsername -Username $UserName -Environment $Environment
 					if (!$AzureConnection)
 					{
 						break
@@ -141,7 +160,7 @@ function Connect-M365SAT
 			}
 			if ($GraphAuth -ne $true){
 				if (![string]::IsNullOrEmpty($Password)){
-					$GraphOrgName = Invoke-MicrosoftGraphCredentials
+					$GraphOrgName = Invoke-MicrosoftGraphCredentials -Environment $Environment
 					if ([string]::IsNullOrEmpty($GraphOrgName))
 					{
 						break
@@ -149,7 +168,7 @@ function Connect-M365SAT
 						$GraphAuth = $true
 					}
 				}else{
-					$GraphOrgName = Invoke-MicrosoftGraphUsername
+					$GraphOrgName = Invoke-MicrosoftGraphUsername -Environment $Environment
 					if ([string]::IsNullOrEmpty($GraphOrgName))
 					{
 						break
@@ -162,7 +181,7 @@ function Connect-M365SAT
 		"Sharepoint"{
 			if (![string]::IsNullOrEmpty($Password)){
 				if ($GraphAuth -ne $true){
-					$GraphOrgName = Invoke-MicrosoftGraphCredentials #Microsoft Sharepoint depends on some the Organization Name provided by Microsoft Graph and cannot be provided by Sharepoint itself.
+					$GraphOrgName = Invoke-MicrosoftGraphCredentials -Environment $Environment #Microsoft Sharepoint depends on some the Organization Name provided by Microsoft Graph and cannot be provided by Sharepoint itself.
 					if ([string]::IsNullOrEmpty($GraphOrgName))
 					{
 						break
@@ -172,17 +191,31 @@ function Connect-M365SAT
 						$GraphAuth = $true
 					}
 				}
-				$tenantname = (((Get-MgOrganization).VerifiedDomains |  Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name -split '.onmicrosoft.com')[0]
-				$SharepointConnection = Invoke-MicrosoftSharepointCredentials($tenantname, $Credential)
-				if (!$SharepointConnection)
-				{
-					break
-				}else{
-					$SharepointAuth = $true
+				$TenantName = (((Get-MgOrganization).VerifiedDomains |  Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name -split '.onmicrosoft.com')[0]
+				$Module = Get-Module PnP.PowerShell -ListAvailable
+				if ([string]::IsNullOrEmpty($Module)){
+					$SharepointConnection = Invoke-MicrosoftSharepointCredentials -TenantName $TenantName -Credential $Credential -Environment $Environment
+					if (!$SharepointConnection)
+					{
+						break
+					}else{
+						$SharepointAuth = $true
+					}
 				}
+				else
+				{
+					$SharepointConnection = Invoke-MicrosoftSharepointPnPCredentials -TenantName $TenantName -Credential $Credential -Environment $Environment
+					if (!$SharepointConnection)
+					{
+						break
+					}else{
+						$SharepointAuth = $true
+					}
+				}
+				
 			}else{
 				if ($GraphAuth -ne $true){
-					$GraphOrgName = Invoke-MicrosoftGraphCredentials
+					$GraphOrgName = Invoke-MicrosoftGraphCredentials -Environment $Environment
 					if ([string]::IsNullOrEmpty($GraphOrgName))
 					{
 						break
@@ -190,20 +223,33 @@ function Connect-M365SAT
 						$GraphAuth = $true
 					}
 				}
-				$tenantname = (((Get-MgOrganization).VerifiedDomains |  Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name -split '.onmicrosoft.com')[0]
-				$SharepointConnection = Invoke-MicrosoftSharepointUsername($tenantname)
-				if (!$SharepointConnection)
+				$TenantName = (((Get-MgOrganization).VerifiedDomains |  Where-Object { ($_.Name -like "*.onmicrosoft.com") -and ($_.Name -notlike "*mail.onmicrosoft.com") }).Name -split '.onmicrosoft.com')[0]
+				$Module = Get-Module PnP.PowerShell -ListAvailable
+				if ([string]::IsNullOrEmpty($Module)){
+					$SharepointConnection = Invoke-MicrosoftSharepointUsername -TenantName $TenantName -Credential $Credential -Environment $Environment
+					if (!$SharepointConnection)
+					{
+						break
+					}else{
+						$SharepointAuth = $true
+					}
+				}
+				else
 				{
-					break
-				}else{
-					$SharepointAuth = $true
+					$SharepointConnection = Invoke-MicrosoftSharepointPnPUsername -TenantName $TenantName -Environment $Environment
+					if (!$SharepointConnection)
+					{
+						break
+					}else{
+						$SharepointAuth = $true
+					}
 				}
 			}
 		}
 		"Teams"{
 			if (![string]::IsNullOrEmpty($Password)){
 				if($GraphAuth -ne $true){
-					$GraphOrgName = Invoke-MicrosoftGraphCredentials #Microsoft Teams does not output the original default domainname, thus we invoke Graph for this as well
+					$GraphOrgName = Invoke-MicrosoftGraphCredentials -Environment $Environment #Microsoft Teams does not output the original default domainname, thus we invoke Graph for this as well
 					if ([string]::IsNullOrEmpty($GraphOrgName))
 					{
 						break
@@ -211,7 +257,7 @@ function Connect-M365SAT
 						$GraphAuth = $true
 					}
 				}
-				$TeamsConnection = Invoke-MicrosoftTeamsCredentials($Credential)
+				$TeamsConnection = Invoke-MicrosoftTeamsCredentials -Credential $Credential -Environment $Environment
 				if (!$TeamsConnection)
 				{
 					break
@@ -220,7 +266,7 @@ function Connect-M365SAT
 				}
 			}else{
 				if($GraphAuth -ne $true){
-					$GraphOrgName = Invoke-MicrosoftGraphCredentials #Microsoft Teams does not output the original default domainname, thus we invoke Graph for this as well
+					$GraphOrgName = Invoke-MicrosoftGraphUsername -Environment $Environment #Microsoft Teams does not output the original default domainname, thus we invoke Graph for this as well
 					if ([string]::IsNullOrEmpty($GraphOrgName))
 					{
 						break
@@ -228,7 +274,7 @@ function Connect-M365SAT
 						$GraphAuth = $true
 					}
 				}
-				$TeamsConnection = Invoke-MicrosoftTeamsUsername($Username)
+				$TeamsConnection = Invoke-MicrosoftTeamsUsername -Username $UserName -Environment $Environment
 				if (!$TeamsConnection)
 				{
 					break

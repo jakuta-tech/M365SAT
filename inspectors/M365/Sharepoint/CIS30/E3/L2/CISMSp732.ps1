@@ -1,6 +1,6 @@
 # Date: 25-1-2023
 # Version: 1.0
-# Benchmark: CIS Microsoft 365 v3.0.0
+# Benchmark: CIS Microsoft 365 v3.1.0
 # Product Family: Microsoft Sharepoint
 # Purpose: Block OneDrive for Business sync from unmanaged devices
 # Author: Leonardo van de Weteringh
@@ -39,18 +39,31 @@ function Audit-CISMSp732
 {
 	Try
 	{
-		
-		$ShareSettings = (Get-SPOTenant).ConditionalAccessPolicy
-		If ($ShareSettings -ne "AllowLimitedAccess")
+		$Module = Get-Module PnP.PowerShell -ListAvailable
+		if(-not [string]::IsNullOrEmpty($Module))
 		{
-			$message = "ConditionalAccessPolicy is set to $($ShareSettings)."
-			$ShareSettings | Format-Table -AutoSize | Out-File "$path\CISMSp732-SPOTenant.txt"
-			$endobject = Build-CISMSp732($message)
-			return $endobject
+			$ShareSettings = (Get-PnPTenant).ConditionalAccessPolicy
+			If ($ShareSettings -ne "AllowLimitedAccess")
+			{
+				$message = "ConditionalAccessPolicy is set to $($ShareSettings)."
+				$ShareSettings | Format-Table -AutoSize | Out-File "$path\CISMSp732-SPOTenant.txt"
+				$endobject = Build-CISMSp732($message)
+				return $endobject
+			}
+			return $null
 		}
-		
-		return $null
-		
+		else
+		{
+			$ShareSettings = (Get-SPOTenant).ConditionalAccessPolicy
+			If ($ShareSettings -ne "AllowLimitedAccess")
+			{
+				$message = "ConditionalAccessPolicy is set to $($ShareSettings)."
+				$ShareSettings | Format-Table -AutoSize | Out-File "$path\CISMSp732-SPOTenant.txt"
+				$endobject = Build-CISMSp732($message)
+				return $endobject
+			}
+			return $null
+		}
 	}
 	catch
 	{

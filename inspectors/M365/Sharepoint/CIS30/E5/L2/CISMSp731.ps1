@@ -1,6 +1,6 @@
 # Date: 25-1-2023
 # Version: 1.0
-# Benchmark: CIS Microsoft 365 v3.0.0
+# Benchmark: CIS Microsoft 365 v3.1.0
 # Product Family: Microsoft Sharepoint
 # Purpose: Ensure Office 365 SharePoint infected files are disallowed for download
 # Author: Leonardo van de Weteringh
@@ -38,14 +38,29 @@ function Audit-CISMSp731
 {
 	try
 	{
-		$DNAIFSP = Get-SPOTenant | Select-Object DisallowInfectedFileDownload
-		if ($DNAIFSP.DisallowInfectedFileDownload -match 'False')
+		$Module = Get-Module PnP.PowerShell -ListAvailable
+		if(-not [string]::IsNullOrEmpty($Module))
 		{
-			$DNAIFSP | Format-Table -AutoSize | Out-File "$path\CISMSp732-SPOTenant.txt"
-			$endobject = Build-CISMSp731("DisallowInfectedFileDownload: $($DNAIFSP.DisallowInfectedFileDownload)")
-			return $endobject
+			$DNAIFSP = Get-PnPTenant | Select-Object DisallowInfectedFileDownload
+			if ($DNAIFSP.DisallowInfectedFileDownload -match 'False')
+			{
+				$DNAIFSP | Format-Table -AutoSize | Out-File "$path\CISMSp732-PnPTenant.txt"
+				$endobject = Build-CISMSp731("DisallowInfectedFileDownload: $($DNAIFSP.DisallowInfectedFileDownload)")
+				return $endobject
+			}
+			return $null
 		}
-		return $null
+		else
+		{
+			$DNAIFSP = Get-SPOTenant | Select-Object DisallowInfectedFileDownload
+			if ($DNAIFSP.DisallowInfectedFileDownload -match 'False')
+			{
+				$DNAIFSP | Format-Table -AutoSize | Out-File "$path\CISMSp732-SPOTenant.txt"
+				$endobject = Build-CISMSp731("DisallowInfectedFileDownload: $($DNAIFSP.DisallowInfectedFileDownload)")
+				return $endobject
+			}
+			return $null
+		}
 	}
 	catch
 	{

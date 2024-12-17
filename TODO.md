@@ -1,22 +1,34 @@
-# TO-DO List
+# Project TO-DO List
 
-### TO-DO (v3.0)
+## Version 3.0 Release
 
-- Fully cross-platform compatibility (including MacOSX and Linux)
-- [#37](https://github.com/asterictnl-lvdw/M365SAT/issues/37)
-- [#39](https://github.com/asterictnl-lvdw/M365SAT/issues/39)
-- Creating a Docker-Container of M365SAT to run a containerized environment.
-- There is no detection for government issued environments and I do not know if the script does work for it.
-- Looking into the implementation with a service principal instead of a global admin account with respective permissions.
-- Implementing the CISA Benchmark and creating a mapping with the CIS benchmark.
-- Make a risk distribution Chart en make the other chart responsive instead of a static chart.
-- Add the posibility for 1-click remediation as you execute the PowerShell command via the browser by executing the command in the browser to look at this possibility.
-- We are going to start using PnP.Powershell alongside the Microsoft Sharepoint module to PnP PowerShell, due to wider compatibility and better support.
-- Add additional objects within the finding-objects to enhance reporting mechanism.
-- Add the OK status so you will get a report including the things that are OK as well. (3-status-mechanism: OK,FAIL,UNKNOWN).
+### Fixes (v3.0)
+- **Object Sorting Bug**: Resolved a bug where object sorting was incorrect, leading to inaccurate reports. [Issue #47](https://github.com/asterictnl-lvdw/M365SAT/issues/47) **Status: FIXED**
+- **Azure Audit Optimization**: Enhanced multiple Azure audit scripts for improved auditing efficiency. **Status: FIXED**
+- **Inspector List Update**: Added v3.0.0 inspectors to the available list. **Status: FIXED**
+- **Inspector Rewrite**: Rewritten all v2.x.x inspectors based on v3.x.x models for greater accuracy. **Status: FIXED**
+- **Conditional Access Enhancements**: Improved the accuracy of Conditional Access auditing. **Status: FIXED**
 
-### Unknown
+### Implemented Features
+- **CIS Microsoft 365 Benchmark**: Implemented version 4.0.0 of the CIS Microsoft 365 Benchmark. **Status: DONE**
+- **CIS Azure Benchmark**: Implemented version 3.1.0 of the CIS Azure Benchmark. **Status: DONE**
+- [Issue #39](https://github.com/asterictnl-lvdw/M365SAT/issues/39) **Status: DONE**
+- **PnP PowerShell Integration**: Transitioned to using PnP.Powershell alongside the Microsoft SharePoint module for enhanced compatibility. **Status: DONE**
+- **Cross-Platform Compatibility**: Achieved compatibility with MacOS and Linux. **Status: TESTING**
+- **Government Environments**: Uncertain compatibility with government-issued environments; further testing required. **Status: TESTING**
 
-- We are going to widen the compatibility of MultiThreaded-Mode.
-- There are issues with MultiThreading when running Exchange Cmdlets. Source: https://learn.microsoft.com/en-us/powershell/exchange/invoke-command-workarounds-rest-api?view=exchange-ps we are looking into implementing the workaround to make this work so multithreading will be no issue with these cmdlets. Eventually these cmdlets will be executed in singlethreaded mode afterwards to make sure they succeed all.
-- There are multiple issues with multithreading mode when executing the inspectors. This is being investigated, but there is no fix available at this moment. When this will be fixed is unknown.
+### Ongoing Fixes
+- **Report Status Enhancement**: Introduce a 3-status reporting mechanism (OK, FAIL, UNKNOWN) to include successfully passed checks in the report. **Status: IN-PROGRESS**
+- **Finding-Objects Expansion**: Add new objects to enhance reporting, including Paragraph and Status attributes. **Status: IN-PROGRESS**
+- **AzAccount MultiAPI Replacement**: Replacing AzAccount MultiAPI Connector with a no-dependency connector; requires a one-time authentication for token generation. **Status: TESTING**
+- [Issue #37](https://github.com/asterictnl-lvdw/M365SAT/issues/37) **Status: IN-PROGRESS**
+- **CSV Output Improvement**: Enhance CSV output functionality for better data handling. **Status: M365 Converted, Azure IN-PROGRESS**
+- **XML/JSON Output Support**: Add support for XML and JSON as additional output formats. **Status: IN-PROGRESS**
+- **Service Principal Integration**: Explore using a service principal instead of a global admin account for operations, ensuring proper permissions. **Status: IN-PROGRESS**
+- **CISA Benchmark Implementation**: Integrate CISA Benchmark and create mappings with the CIS Benchmark. **Status: IN-PROGRESS**
+
+### Investigation & Future Tasks
+- **Docker-Container Creation**: Develop a Docker container version of M365SAT for containerized environments. **Status: DELAYED**
+- **Multi-Threaded Compatibility**: Explore wider compatibility for Multi-Threaded Mode execution. **Status: UNDER INVESTIGATION**
+- **Exchange Cmdlets Multi-Threading Issues**: Address multithreading compatibility issues when running Exchange Cmdlets. Workarounds from [Microsoft](https://learn.microsoft.com/en-us/powershell/exchange/invoke-command-workarounds-rest-api?view=exchange-ps) are under review. If unresolved, cmdlets will execute in single-threaded mode to ensure stability.
+- **Inspector Multi-Threading Issues**: Ongoing investigation into multithreading challenges with inspector execution. No current fix or timeline available. 

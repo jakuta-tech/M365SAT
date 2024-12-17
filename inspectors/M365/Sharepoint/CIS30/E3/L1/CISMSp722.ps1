@@ -1,12 +1,15 @@
 # Date: 25-1-2023
 # Version: 1.0
-# Benchmark: CIS Microsoft 365 v3.0.0
+# Benchmark: CIS Microsoft 365 v3.1.0
 # Product Family: Microsoft Sharepoint
 # Purpose: Ensure SharePoint and OneDrive integration with Azure AD B2B is enabled
 # Author: Leonardo van de Weteringh
 
 # New Error Handler Will be Called here
 Import-Module PoShLog
+
+# Determine OutPath
+$path = @($OutPath)
 
 function Build-CISMSp722($findings)
 {
@@ -36,21 +39,43 @@ function Audit-CISMSp722
 {
 	try
 	{
-		# Actual Script
-		$AffectedOptions = @()
-		$SharepointSetting = Get-SPOTenant | Format-Table EnableAzureADB2BIntegration
-		if ($SharepointSetting.EnableAzureADB2BIntegration -ne $True)
+		$Module = Get-Module PnP.PowerShell -ListAvailable
+		if(-not [string]::IsNullOrEmpty($Module))
 		{
-			$AffectedOptions += "EnableAzureADB2BIntegration: False"
+			# Actual Script
+			$AffectedOptions = @()
+			$SharepointSetting = Get-PnPTenant | Format-Table EnableAzureADB2BIntegration
+			if ($SharepointSetting.EnableAzureADB2BIntegration -ne $True)
+			{
+				$AffectedOptions += "EnableAzureADB2BIntegration: False"
+			}
+			# Validation
+			if ($AffectedOptions.Count -ne 0)
+			{
+				$SharepointSetting | Format-Table -AutoSize | Out-File "$path\CISMSp722-SPOTenant.txt"
+				$finalobject = Build-CISMSp722($AffectedOptions)
+				return $finalobject
+			}
+			return $null
 		}
-		# Validation
-		if ($AffectedOptions.Count -ne 0)
+		else
 		{
-			$SharepointSetting | Format-Table -AutoSize | Out-File "$path\CISMSp722-SPOTenant.txt"
-			$finalobject = Build-CISMSp722($AffectedOptions)
-			return $finalobject
+			# Actual Script
+			$AffectedOptions = @()
+			$SharepointSetting = Get-SPOTenant | Format-Table EnableAzureADB2BIntegration
+			if ($SharepointSetting.EnableAzureADB2BIntegration -ne $True)
+			{
+				$AffectedOptions += "EnableAzureADB2BIntegration: False"
+			}
+			# Validation
+			if ($AffectedOptions.Count -ne 0)
+			{
+				$SharepointSetting | Format-Table -AutoSize | Out-File "$path\CISMSp722-SPOTenant.txt"
+				$finalobject = Build-CISMSp722($AffectedOptions)
+				return $finalobject
+			}
+			return $null
 		}
-		return $null
 	}
 	catch
 	{
