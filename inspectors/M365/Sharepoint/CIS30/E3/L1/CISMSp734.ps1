@@ -1,6 +1,6 @@
 # Date: 25-1-2023
 # Version: 1.0
-# Benchmark: CIS Microsoft 365 v3.0.0
+# Benchmark: CIS Microsoft 365 v3.1.0
 # Product Family: Microsoft Sharepoint
 # Purpose: Ensure custom script execution is restricted on site collections
 # Author: Leonardo van de Weteringh
@@ -38,19 +38,39 @@ function Audit-CISMSp734
 {
 	try
 	{
-		$SiteViolation = @()
-		$Sites = Get-SPOSite | Select-Object Title, Url, DenyAddAndCustomizePages | Where-Object {$_.DenyAddAndCustomizePages -eq "Disabled"}
-		foreach ($Site in $Sites)
+		$Module = Get-Module PnP.PowerShell -ListAvailable
+		if(-not [string]::IsNullOrEmpty($Module))
 		{
-			$SiteViolation += $Site.Url
+			$SiteViolation = @()
+			$Sites = Get-PnPSite | Select-Object Title, Url, DenyAddAndCustomizePages | Where-Object {$_.DenyAddAndCustomizePages -eq "Disabled"}
+			foreach ($Site in $Sites)
+			{
+				$SiteViolation += $Site.Url
+			}
+			if ($SiteViolation.Count -igt 0)
+			{
+				$Sites | Format-Table -AutoSize | Out-File "$path\CISMSp734-SPOSite.txt"
+				$endobject = Build-CISMSp734($SiteViolation)
+				return $endobject
+			}
+			return $null
 		}
-		if ($SiteViolation.Count -igt 0)
+		else
 		{
-			$Sites | Format-Table -AutoSize | Out-File "$path\CISMSp734-SPOSite.txt"
-			$endobject = Build-CISMSp734($SiteViolation)
-			return $endobject
+			$SiteViolation = @()
+			$Sites = Get-SPOSite | Select-Object Title, Url, DenyAddAndCustomizePages | Where-Object {$_.DenyAddAndCustomizePages -eq "Disabled"}
+			foreach ($Site in $Sites)
+			{
+				$SiteViolation += $Site.Url
+			}
+			if ($SiteViolation.Count -igt 0)
+			{
+				$Sites | Format-Table -AutoSize | Out-File "$path\CISMSp734-SPOSite.txt"
+				$endobject = Build-CISMSp734($SiteViolation)
+				return $endobject
+			}
+			return $null
 		}
-		return $null
 	}
 	catch
 	{

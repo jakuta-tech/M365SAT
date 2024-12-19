@@ -39,18 +39,11 @@ function Audit-CISMOff113
 {
 	Try
 	{
-		#Original Script
-		#$globalAdminRole = Get-MgDirectoryRole -Filter "RoleTemplateId eq '62e90394-69f5-4237-9190-012177145e10'"
-		#$globalAdmins = Get-MgDirectoryRoleMember -DirectoryRoleId 
-		#$globalAdminRole.Id
-
-		# Custom Script
 		$global_admins = (Get-MgDirectoryRoleMember -DirectoryRoleId (Get-MgDirectoryRole -Filter "DisplayName eq 'Global Administrator'").id | ForEach-Object { Get-MgDirectoryObjectById -Ids $_.id }).AdditionalProperties.userPrincipalName
 		$num_global_admins = ($global_admins | Measure-Object).Count
 		
 		If ($num_global_admins -lt 2 -or $num_global_admins -igt 4)
 		{
-			$global_admins | Format-Table -AutoSize | Out-File "$path\CISMOff113-GlobalAdmins.txt"
 			$endobject = Build-CISMOff113($num_global_admins)
 			Return $endobject
 		}

@@ -10,7 +10,7 @@ function Get-M365SATCSVReport
         $ReportDate = $object.EndDate
 
         # Sort all findings
-        $SortedFindings = $object.Findings | Sort-Object -Descending { Switch -Regex ($_.RiskRating) { 'Critical' { 1 }	'High' { 2 } 'Medium' { 3 }	'Low' { 4 }	'Informational' { 5 } }; $_.RiskScore }
+        $SortedFindings = $object.Findings | Sort-Object $_.ID
 
         #CompanyName
         try{
@@ -34,33 +34,112 @@ function Get-M365SATCSVReport
                 $FindingCounter += 1
 
                 # Create empty list for References
-                $refs = @()
-                foreach ($Reference in $SortedFindings.References){
-                    $refs += "$($Reference.Name) : $($Reference.URL)"
+                $refs = New-Object System.Collections.ArrayList
+                foreach ($Reference in $finding.References){
+                    $refs.Add("$($Reference.Name) : $($Reference.URL)") | Out-Null
                 }
+                $finalrefs = $refs -join '^'
+                $refs.Clear()
             }
             $result = [PSCustomObject]@{
-                ID			     = $finding.ID
-                FindingName	     = $finding.FindingName
-                ProductFamily    = $finding.ProductFamily
-                RiskScore	     = $finding.RiskScore
-                Description	     = $finding.Description
-                Remediation	     = $finding.Remediation
-                PowerShellScript = $finding.PowerShellScript
-                DefaultValue	 = $finding.DefaultValue
-                ExpectedValue    = $finding.ExpectedValue
-                ReturnedValue    = $finding.ReturnedValue
-                Impact		     = $finding.Impact
-                Likelihood	     = $finding.Likelihood
-                RiskRating	     = $finding.RiskRating
-                Priority		 = $finding.Priority
-                References	     = $refs
-                'Remediation Status' = " "
-                'Start Date'         = " "
-                'Completion Date'    = " "
+                UUID                 = $finding.UUID
+                ID			         = $finding.ID
+                Title                = $finding.Title
+                ProductFamily        = $finding.ProductFamily
+                DefaultValue	     = $finding.DefaultValue
+                ExpectedValue        = $finding.ExpectedValue
+                ReturnedValue        = $("$($finding.ReturnedValue)" | Out-String).Trim()
+                'Remediation Status' = $finding.Status
                 'Notes'              = " "
+                Description	         = $finding.Description
+                Impact               = $finding.Impact
+                Remediation          = $(($finding.Remediation) -join " ")
+                References           = $finalrefs
             }
             $FinalFindings += $result
         }
-        $FinalFindings | Export-Csv "$OutPath\$($TenantName)_$(Get-Date -Format "yyyyMMddhhmmss").csv" -Delimiter '^' -NoTypeInformation -Append -Force
+
+	# Write to file
+	
+	# Create a new directory for the new report
+	$NewPath = New-CreateDirectory($OutPath)
+	$LogPath = "$($NewPath)\evidence"
+    New-Item -ItemType Directory -Force -Path $LogPath | Out-Null
+
+	#Move All Logs into the newly created path
+	$LogFiles = (Get-ChildItem -Path $OutPath -Filter "*.txt").FullName
+	foreach ($LogFile in $LogFiles)
+	{
+		Move-Item -Path $LogFile -Destination $LogPath -Force
+	}
+
+    $ReportFileName = "M365SAT-$(Get-Date -Format 'yyyyMMddHHmm').csv"
+    $OutputFile = "$NewPath\$ReportFileName"
+
+    $FinalFindings | Export-Csv $OutputFile -Delimiter '^' -NoTypeInformation -Append -Force
+
+    #Create a .zip File of the full report including the objects
+	New-ZipFile($NewPath)
+	
+	# Open the HTML Report
+	Close-Logger
+	Invoke-Expression $OutputFile
+}
+
+function New-ZipFile($outpath)
+{
+	try
+	{
+		$compress = @{
+			Path			 = $OutPath
+			CompressionLevel = "Fastest"
+			DestinationPath  = "$OutPath\$($TenantName)_Report_$(Get-Date -Format "yyyy-MM-dd_hh-mm-ss").zip"
+		}
+		Compress-Archive @compress
+	}
+	catch
+	{
+		'File Already Exists!'
+	}
+}
+
+function New-CreateDirectory($OutPath)
+{
+	#Create Output Directory if required
+	if (Test-Path -Path $OutPath)
+	{
+		Write-Host "Path Exists! Checking Permissions..."
+		try
+		{
+			Write-Host "Creating Directory..."
+			$newpath = "$OutPath\$($TenantName)_$(Get-Date -Format "yyyyMMddhhmmss")"
+			New-Item -ItemType Directory -Force -Path $newpath | Out-Null
+			$path = Resolve-Path $newpath
+			return $newpath
+		}
+		catch
+		{
+			Write-Error "Could not create directory"
+			break
+		}
+	}
+	else
+	{
+		Write-Host "Path does not exist! Creating Directory..."
+		try
+		{
+			Write-Host "Creating Parent Directory..."
+			New-Item -ItemType Directory -Force -Path $OutPath | Out-Null
+			$newpath = "$OutPath\$($TenantName)_$(Get-Date -Format "yyyyMMddhhmmss")"
+			Write-Host "Creating Report Directory..."
+			New-Item -ItemType Directory -Force -Path $newpath | Out-Null
+			$path = Resolve-Path $newpath
+			return $newpath
+		}
+		catch
+		{
+			Write-Error "Could not create Directory! Insufficient Permissions!"
+			break
+		}
+	}
 }
