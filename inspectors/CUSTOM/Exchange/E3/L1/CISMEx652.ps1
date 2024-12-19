@@ -63,7 +63,7 @@ function Audit-CISMEx652
 		if ($ExchangeMailTipsData.count -igt 0)
 		{
 			$ExchangeMailTipsData | Format-List | Out-File -FilePath "$path\CISMEx652-MailTipsConfiguration.txt"
-			$endobject = Build-CISMEx652($ExchangeMailTipsData) -ReturnedValue ("AuditDisabled: $($MailboxAudit1)") -Status "FAIL" -RiskScore "8" -RiskRating "Medium"
+			$endobject = Build-CISMEx652 -ReturnedValue $ExchangeMailTipsData -Status "FAIL" -RiskScore "8" -RiskRating "Medium"
 			return $endobject
 		}
 		else
