@@ -158,6 +158,13 @@ Following thorough testing and additional updates, version 2.1.1 of M365SAT is n
 
 For detailed changes, please refer to the Releases section.
 
-### Version 3.0
-
-**Coming Soon!**
+### Version 3.0 beta
+- **Object Sorting Bug**: Resolved a bug where object sorting was incorrect, leading to inaccurate reports. [Issue #47](https://github.com/asterictnl-lvdw/M365SAT/issues/47) **Status: FIXED**
+- **Azure Audit Optimization**: Enhanced multiple Azure audit scripts for improved auditing efficiency. **Status: FIXED**
+- **Inspector List Update**: Added v3.0.0 inspectors to the available list. **Status: FIXED**
+- **Inspector Rewrite**: Rewritten all v2.x.x inspectors based on v3.x.x models for greater accuracy. **Status: FIXED**
+- **Conditional Access Enhancements**: Improved the accuracy of Conditional Access auditing. **Status: FIXED**
+- **CIS Microsoft 365 Benchmark**: Implemented version 4.0.0 of the CIS Microsoft 365 Benchmark. **Status: DONE**
+- **CIS Azure Benchmark**: Implemented version 3.1.0 of the CIS Azure Benchmark. **Status: DONE**
+- [Issue #39](https://github.com/asterictnl-lvdw/M365SAT/issues/39) **Status: DONE**
+- **PnP PowerShell Integration**: Transitioned to using PnP.Powershell alongside the Microsoft SharePoint module for enhanced compatibility. **Status: DONE**
